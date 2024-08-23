@@ -1,63 +1,28 @@
-from django.db import models
-from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+# relationship_app/models.py
 
+from django.db import models
+
+# Define the Author model (assuming an Author model is needed)
 class Author(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
 
+# Define the Book model
 class Book(models.Model):
-    title = models.CharField(max_length=255)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='books')
+    title = models.CharField(max_length=200)  # Field to store the book title
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)  # ForeignKey to link the book with its author
+    publication_year = models.IntegerField()  # Field to store the year the book was published
 
     def __str__(self):
         return self.title
 
-    class Meta:
-        permissions = [
-            ("can_add_book", "Can add book"),
-            ("can_change_book", "Can change book"),
-            ("can_delete_book", "Can delete book"),
-        ]
-
+# Define the Library model
 class Library(models.Model):
-    name = models.CharField(max_length=255)
-    books = models.ManyToManyField(Book, related_name='libraries')
+    name = models.CharField(max_length=100)  # Field to store the library name
+    location = models.CharField(max_length=255)  # Field to store the library location
+    books = models.ManyToManyField(Book)  # ManyToManyField to link libraries with books
 
     def __str__(self):
         return self.name
-
-class Librarian(models.Model):
-    name = models.CharField(max_length=255)
-    library = models.OneToOneField(Library, on_delete=models.CASCADE, related_name='librarian')
-
-    def __str__(self):
-        return self.name
-
-# Extending the User model
-class UserProfile(models.Model):
-    ROLE_CHOICES = [
-        ('Admin', 'Admin'),
-        ('Librarian', 'Librarian'),
-        ('Member', 'Member'),
-    ]
-    
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-
-    def __str__(self):
-        return f'{self.user.username} - {self.role}'
-
-# Signal to create UserProfile when a new User is created
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
-
-# Signal to save UserProfile when User is saved
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.userprofile.save()
