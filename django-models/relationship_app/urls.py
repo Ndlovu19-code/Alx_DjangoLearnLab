@@ -1,7 +1,10 @@
 from django.urls import path
-from .views import list_books, LibraryDetailView  # Import the views
+from . import views
 
 urlpatterns = [
-    path('books/', list_books, name='list_books'),  # URL pattern for function-based view
-    path('library/<int:pk>/', LibraryDetailView.as_view(), name='library_detail'),  # URL pattern for class-based view
+    path('add_book/', views.add_book, name='add_book'),
+    path('edit_book/<int:pk>/', views.edit_book, name='edit_book'),
+    path('delete/<int:pk>/', views.delete_book, name='delete_book'),
+    # Ensure you have a URL pattern for listing books, if used in redirect
+    path('list/', views.book_list, name='book_list'),  # Example URL pattern for listing books
 ]
